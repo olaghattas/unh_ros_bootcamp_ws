@@ -15,6 +15,7 @@ find_package(rosidl_default_generators REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "action/FollowFullTrajectory.action"
   "action/FollowSingleWaypoint.action"
+  "msg/MoveJoint.msg"
   DEPENDENCIES geometry_msgs
 )
 
