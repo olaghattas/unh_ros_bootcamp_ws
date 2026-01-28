@@ -1,11 +1,13 @@
 # ROS 2 Turtlesim Action Tutorial (Bootcamp)
 
 ## Goal
+
 The goal of this tutorial is to demonstrate how to use **ROS 2 actions** with **turtlesim** by implementing a custom action server and client.
 
 This tutorial is based on:
-- ROS 2 Humble Hawksbill
-- turtlesim from `ros_tutorials`: https://github.com/ros/ros_tutorials
+
+* ROS 2 Humble Hawksbill
+* `turtlesim` from [ros_tutorials](https://github.com/ros/ros_tutorials)
 
 ---
 
@@ -16,11 +18,13 @@ sudo apt install ros-humble-turtlesim
 ```
 
 Verify the package:
+
 ```bash
 ros2 pkg executables turtlesim
 ```
 
 Run turtlesim:
+
 ```bash
 ros2 run turtlesim turtlesim_node
 ```
@@ -30,9 +34,13 @@ ros2 run turtlesim turtlesim_node
 ## Turtlesim Interfaces
 
 ### Topics
+
 ```bash
 ros2 topic list
 ```
+
+Example output:
+
 ```
 /parameter_events
 /rosout
@@ -43,17 +51,25 @@ ros2 topic list
 ```
 
 ### Actions
+
 ```bash
 ros2 action list
 ```
+
+Example output:
+
 ```
 /turtle1/rotate_absolute
 ```
 
 ### Services
+
 ```bash
 ros2 service list
 ```
+
+Example output:
+
 ```
 /clear
 /kill
@@ -62,7 +78,6 @@ ros2 service list
 /turtle1/set_pen
 /turtle1/teleport_absolute
 /turtle1/teleport_relative
-...
 ```
 
 ---
@@ -70,9 +85,29 @@ ros2 service list
 ## Action Design
 
 We will implement:
-- **FollowFullTrajectory** – send an entire trajectory at once
+
+* **FollowFullTrajectory** – send an entire trajectory at once
+
+We need a custom action definition, so we first create an interface package.
+
+---
+
+## Create Interface Package
+
+```bash
+mkdir -p ~/unh_ros_bootcamp_ws/src
+cd ~/unh_ros_bootcamp_ws/src
+ros2 pkg create unh_bc_interfaces
+cd unh_bc_interfaces
+mkdir action
+```
+
+---
 
 ### FollowFullTrajectory.action
+
+Create this file in `action/FollowFullTrajectory.action`:
+
 ```text
 # Goal
 geometry_msgs/Point[] waypoints
@@ -86,21 +121,9 @@ float32 distance_remaining
 
 ---
 
-## Create Interface Package
+## Update `CMakeLists.txt` and `package.xml`
 
-```bash
-mkdir -p unh_ros_bootcamp_ws/src
-cd unh_ros_bootcamp_ws/src
-ros2 pkg create unh_bc_interfaces
-cd unh_bc_interfaces
-mkdir action
-```
-
-Add action files to `action/`.
-
----
-
-## CMakeLists.txt
+### CMakeLists.txt
 
 ```cmake
 find_package(geometry_msgs REQUIRED)
@@ -108,14 +131,11 @@ find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "action/FollowFullTrajectory.action"
-  "action/FollowSingleWaypoint.action"
   DEPENDENCIES geometry_msgs
 )
 ```
 
----
-
-## package.xml
+### package.xml
 
 ```xml
 <buildtool_depend>rosidl_default_generators</buildtool_depend>
@@ -126,45 +146,62 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 
 ---
 
-## Build
+## Build Interface Package
 
 ```bash
+cd ~/unh_ros_bootcamp_ws
 colcon build --symlink-install
 source install/setup.bash
 ```
 
-Verify:
+Verify the action interface:
+
 ```bash
 ros2 interface show unh_bc_interfaces/action/FollowFullTrajectory
 ```
 
 ---
 
-## Action Server: follow_full_trajectory_server.py
+## Create Action Server and Client Package
 
-code in action_tutorial/action_tutorial/follow_full_trajectory_server.py
+```bash
+cd ~/unh_ros_bootcamp_ws/src
+ros2 pkg create --build-type ament_python action_tutorial
+```
+
+Update `package.xml` to include the interface package:
+
+```xml
+<depend>unh_bc_interfaces</depend>
+```
 
 ---
 
-## Action Client: follow_full_trajectory_client.py
+### Action Server: `follow_full_trajectory_server.py`
 
-
-code in action_tutorial/action_tutorial/follow_full_trajectory_client.py
-
-
----
-
-## Testing
+Create `action_tutorial/action_tutorial/follow_full_trajectory_server.py`.
 
 Reset turtlesim:
+
 ```bash
 ros2 service call /reset std_srvs/srv/Empty "{}"
 ```
 
 Send a goal:
+
 ```bash
-ros2 action send_goal /follow_full_trajectory unh_bc_interfaces/action/FollowFullTrajectory "{waypoints: [{x: 1.0, y: 1.0, z: 0.0}, {x: 2.0, y: 1.0, z: 0.0}]}"
+ros2 action send_goal /follow_full_trajectory \
+unh_bc_interfaces/action/FollowFullTrajectory \
+"{waypoints: [{x: 1.0, y: 1.0, z: 0.0}, {x: 2.0, y: 1.0, z: 0.0}]}"
 ```
+
+---
+
+### Action Client: `follow_full_trajectory_client.py`
+
+Create `action_tutorial/action_tutorial/follow_full_trajectory_client.py`.
+
+This client will send goals to the server and handle feedback/results.
 
 ---
 
@@ -183,16 +220,12 @@ ros2 action send_goal /action_name <type> "{data}" --feedback
 ## Environment Setup
 
 ```bash
+# Source ROS
 echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+source ~/.bashrc
+
+# Optional: ROS domain and localhost-only settings
 export ROS_DOMAIN_ID=<your_domain_id>
 export ROS_LOCALHOST_ONLY=1
 echo "export ROS_LOCALHOST_ONLY=1" >> ~/.bashrc
 ```
-
----
-
-## Notes
-
-- This tutorial is suitable for a live bootcamp demonstration.
-- All APIs used are standard ROS 2 Humble APIs.
-- turtlesim is intentionally simple to focus on action semantics.
