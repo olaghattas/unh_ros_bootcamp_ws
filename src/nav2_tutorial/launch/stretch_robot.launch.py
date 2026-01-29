@@ -26,6 +26,14 @@ def generate_launch_description():
             "params_file": nav2_params,} ## follows /home/hello-robot/ament_ws/src/stretch_ros2/stretch_nav2/launch/navigation.launch.py
     )
 
+    # switch_controller_config = Node(
+    #     package='nav2_tutorial',
+    #     executable='switch_controller_config.py',
+    #     name='switch_controller_config',
+    #     output='screen'
+    # )
+    
+    
     # waits for subscriber
     # ros2 topic pub --once -w 1 /charging std_msgs/msg/Bool "{data: True}"
     # --qos-durability transient_local --qos-reliability reliable

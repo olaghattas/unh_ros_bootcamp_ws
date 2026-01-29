@@ -30,6 +30,7 @@ setup(
     entry_points={
         'console_scripts': [
             'simple_command = nav2_tutorial.simple_command:main',
+            'switch_controller_config = nav2_tutorial.switch_controller_config:main',
         ],
     },
 )
