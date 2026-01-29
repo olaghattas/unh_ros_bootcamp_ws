@@ -1,53 +1,64 @@
-## from https://docs.hello-robot.com/0.3/ros2/realsense_camera/
 #!/usr/bin/env python3
-
 import rclpy
-import sys
-import os
-import cv2
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
+import cv2
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSDurabilityPolicy, QoSHistoryPolicy
 
-class CaptureImage(Node):
-    """
-    A class that converts a subscribed ROS image to a OpenCV image and saves
-    the captured image to a predefined directory.
-    """
+class CameraViewer(Node):
     def __init__(self):
-        """
-        A function that initializes a CvBridge class, subscriber, and save path.
-        :param self: The self reference.
-        """
-        super().__init__('stretch_capture_image')
+        super().__init__('stretch_camera_viewer')
         self.bridge = CvBridge()
-        self.sub = self.create_subscription(Image, '/camera/color/image_raw', self.image_callback, 10)
-        self.save_path = '/home/hello-robot/ament_ws/src/stretch_tutorials/stored_data'
-        self.br = CvBridge()
+
+        qos_profile = QoSProfile(
+            reliability=QoSReliabilityPolicy.RELIABLE,
+            durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=1,
+        )
+
+        # Subscribe to the camera topic
+        self.sub = self.create_subscription(
+            Image,
+            '/camera/camera/color/image_raw',
+            self.image_callback,
+            qos_profile
+        )
+
+        self.get_logger().info("Camera viewer initialized. Press 'q' to quit.")
 
     def image_callback(self, msg):
-        """
-        A callback function that converts the ROS image to a CV2 image and stores the
-        image.
-        :param self: The self reference.
-        :param msg: The ROS image message type.
-        """
-
         try:
-            image = self.bridge.imgmsg_to_cv2(msg, 'bgr8')
+            # Convert ROS Image message to OpenCV image
+            cv_image = self.bridge.imgmsg_to_cv2(msg, 'bgr8')
+            
         except CvBridgeError as e:
-            self.get_logger().warn('CV Bridge error: {0}'.format(e))
+            self.get_logger().warn(f"CV Bridge error: {e}")
+            return
 
-        file_name = 'camera_image.jpeg'
-        completeName = os.path.join(self.save_path, file_name)
-        cv2.imwrite(completeName, image)
-        rclpy.shutdown()
-        sys.exit(0)
+        # Display the image in a window
+        cv2.imshow('Camera Feed', cv_image)
+        key = cv2.waitKey(1) & 0xFF  # Process GUI events
+
+        # If 'q' is pressed, shut down cleanly
+        if key == ord('q'):
+            self.get_logger().info("Shutting down camera viewer...")
+            self.destroy_node()  # Close ROS node
+            cv2.destroyAllWindows()  # Close OpenCV window
 
 def main(args=None):
     rclpy.init(args=args)
-    capture_image = CaptureImage()
-    rclpy.spin(capture_image)
+    node = CameraViewer()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        if rclpy.ok():
+            node.destroy_node()
+        cv2.destroyAllWindows()
+        rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
