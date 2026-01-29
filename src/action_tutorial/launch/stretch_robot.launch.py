@@ -36,11 +36,12 @@ def generate_launch_description():
     realsense2_camera_path = get_package_share_directory('realsense2_camera')
 
     # Include launch files
+    # mode choices=['position', 'navigation', 'trajectory', 'gamepad']
     stretch_driver_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(stretch_core_path, 'launch', 'stretch_driver.launch.py')
         ),
-        launch_arguments={'mode': 'position', 'broadcast_odom_tf': 'True'}.items(),
+        launch_arguments={'mode': 'navigation', 'broadcast_odom_tf': 'True'}.items(),
         condition=UnlessCondition(LaunchConfiguration('use_sim_time'))
     )
     # ## navigation for cmd_vel
