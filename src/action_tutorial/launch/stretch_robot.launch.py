@@ -54,9 +54,15 @@ def generate_launch_description():
     )
 
     realsense_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(realsense2_camera_path, 'launch', 'rs_launch.py')
-        )
+    PythonLaunchDescriptionSource(
+        os.path.join(realsense2_camera_path, 'launch', 'rs_launch.py')
+    ),
+        launch_arguments={
+            'serial_no': '130322272495',   # <-- your camera serial
+            # optional but commonly overridden:
+            # 'camera_name': 'hand_camera',
+            # 'camera_namespace': 'camera',
+        }.items()
     )
 
     base_teleop_launch = IncludeLaunchDescription(

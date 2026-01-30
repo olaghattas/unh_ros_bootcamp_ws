@@ -24,31 +24,10 @@ class FullTrajectoryServer(Node):
             cancel_callback=self.cancel_callback
         )
         
-   
-        
         ## for our specifc use case we need to publish to cmd for the turtle to move and subscribe to pose to calculate the direction and how much is left to reach destination
         self.pose = None
         self.cmd_pub = self.create_publisher(Twist, '/turtle1/cmd_vel', 10)
         self.pose_sub = self.create_subscription(Pose, '/turtle1/pose', self.pose_callback, 10)
-
-    # def draw_waypoints(self, waypoints):
-    #     teleport = self.create_client(TeleportAbsolute, '/turtle1/teleport_absolute')
-    #     pen = self.create_client(SetPen, '/turtle1/set_pen')
-
-    #     teleport.wait_for_service()
-    #     pen.wait_for_service()
-
-    #     for p in waypoints:
-    #         x = p.x
-    #         y = p.y
-    #         # Turn pen on (small dot)
-    #         pen.call_async(SetPen.Request(
-    #             r=255, g=0, b=0, width=3, off=0
-    #         ))
-
-    #         teleport.call_async(TeleportAbsolute.Request(
-    #             x=float(x), y=float(y), theta=0.0
-    #         ))
         
     def pose_callback(self, msg):
         self.pose = msg
