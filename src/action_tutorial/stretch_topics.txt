@@ -44,10 +44,10 @@ hello-robot@stretch-se3-3111:~/smarthome_ws/src/smart-home-robot/external/helper
 /tf
 /tf_static
 /tool
+
 hello-robot@stretch-se3-3111:~/smarthome_ws/src/smart-home-robot/external/helper_scripts$ 
 
 ros2 topic pub /stretch/cmd_vel geometry_msgs/Twist "{linear: {x: 0.0}, angular: {z: 0.3}}" --once
-
 
 ---
 header:
