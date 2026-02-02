@@ -192,7 +192,7 @@ Send a goal:
 ```bash
 ros2 action send_goal /follow_full_trajectory \
 unh_bc_interfaces/action/FollowFullTrajectory \
-"{waypoints: [{x: 1.0, y: 1.0, z: 0.0}, {x: 2.0, y: 1.0, z: 0.0}]}"
+"{waypoints: [{x: 7.0, y: 2.0, z: 0.0}, {x: 3.0, y: 7.0, z: 0.0}]}"
 ```
 
 ---

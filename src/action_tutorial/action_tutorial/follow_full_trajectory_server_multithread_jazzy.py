@@ -62,16 +62,27 @@ class FullTrajectoryServer(Node):
         ## get the waypoints to follow
         trajectory = goal_handle.request.waypoints
         
+        rate = self.create_rate(20)  # 20 Hz
+
         ## instantiate the feedback message
         feedback_msg = FollowFullTrajectory.Feedback()
         for p in trajectory:
             x = p.x
             y = p.y
             while self.pose is None:
-                pass
+                rate.sleep()
+                # pass
                 
             ## while not close enough, keep moving towards the 
             while math.hypot(x - self.pose.x, y - self.pose.y) > 0.1:
+
+                if goal_handle.is_cancel_requested:
+                    self.get_logger().info("Goal canceled")
+                    goal_handle.canceled()
+                    result = FollowFullTrajectory.Result()
+                    result.success = False
+                    return result
+            
                 twist = Twist()
                 dx = x - self.pose.x
                 dy = y - self.pose.y
@@ -86,6 +97,8 @@ class FullTrajectoryServer(Node):
                 
                 feedback_msg.distance_remaining = math.hypot(x - self.pose.x, y - self.pose.y)
                 goal_handle.publish_feedback(feedback_msg)
+
+                rate.sleep()
         
         # ## stop the turtle
         twist.linear.x = 0.0
