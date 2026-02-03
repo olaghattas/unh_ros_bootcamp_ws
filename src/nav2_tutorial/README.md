@@ -1,3 +1,33 @@
+# Required Installation
+
+```
+sudo apt install ros-$ROS_DISTRO-navigation2
+sudo apt install ros-$ROS_DISTRO-nav2-bringup
+```
+
+For Jazzy use:
+```
+sudo apt install ros-$ROS_DISTRO-nav2-minimal-tb*
+```
+
+For Humble, use:
+```
+sudo apt install ros-$ROS_DISTRO-turtlebot3-gazebo
+```
+
+add this to you bashrc
+
+```
+source /opt/ros/<ros2-distro>/setup.bash
+export TURTLEBOT3_MODEL=waffle  # Humble only
+export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:/opt/ros/<ros2-distro>/share/turtlebot3_gazebo/models # Humble only
+```
+
+Run 
+
+```
+ros2 launch nav2_bringup tb3_simulation_launch.py headless:=False
+```
 # Simulation 
 
 ros2 launch nav2_tutorial turtlebot_nav2.launch.py params_file:=<path to yaml>
@@ -33,7 +63,6 @@ To confirm that the `yaw_goal_tolerance` value has been updated:
 ```bash
 ros2 param get /controller_server general_goal_checker.yaw_goal_tolerance
 ```
-
 
 ---
 
@@ -75,6 +104,7 @@ ros2 launch stretch_nav2 navigation.launch.py teleop_type:=keyboard map:=${HELLO
 https://docs.hello-robot.com/0.2/stretch-tutorials/ros2/navigation_stack/
 
 the first step is to map the space that the robot will navigate in
+
 ros2 launch stretch_nav2 offline_mapping.launch.py
 ros2 launch stretch_nav2 offline_mapping.launch.py teleop_type:=keyboard
 
